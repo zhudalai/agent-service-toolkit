@@ -4,6 +4,7 @@ WORKDIR /app
 
 ENV UV_PROJECT_ENVIRONMENT="/usr/local/"
 ENV UV_COMPILE_BYTECODE=1
+RUN apt-get update && apt-get install -y --no-install-recommends curl && rm -rf /var/lib/apt/lists/*
 
 COPY pyproject.toml .
 COPY uv.lock .

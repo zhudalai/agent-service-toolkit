@@ -49,12 +49,25 @@ def format_contexts(docs):
 
 def load_chroma_db():
     # Create the embedding function for our project description database
-    try:
+    from core.settings import settings
+
+    if settings.OPENROUTER_API_KEY:
+        embeddings = OpenAIEmbeddings(
+            openai_api_base="https://openrouter.ai/api/v1",
+            api_key=settings.OPENROUTER_API_KEY,
+            model="text-embedding-3-small",
+        )
+    elif settings.AZURE_OPENAI_API_KEY:
+        from langchain_openai import AzureOpenAIEmbeddings
+
+        embeddings = AzureOpenAIEmbeddings(
+            azure_endpoint=settings.AZURE_OPENAI_ENDPOINT,
+            api_key=settings.AZURE_OPENAI_API_KEY,
+            api_version=settings.AZURE_OPENAI_API_VERSION,
+            model="text-embedding-3-small",
+        )
+    else:
         embeddings = OpenAIEmbeddings()
-    except Exception as e:
-        raise RuntimeError(
-            "Failed to initialize OpenAIEmbeddings. Ensure the OpenAI API key is set."
-        ) from e
 
     # Load the stored vector database
     chroma_db = Chroma(persist_directory="./chroma_db", embedding_function=embeddings)
